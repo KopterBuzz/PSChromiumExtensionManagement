@@ -18,6 +18,4 @@ Currently supports Chrome and Edge.
 
 It only works with Edge if the computer is "Managed by Organization" e.g. Entra or Domain joined.
 
-The module does not support the available default blanket configurations yet ( when you set * wildcard instead of extension name), but that will be added.
-
 The cmdlets do what the comments say but I will probably create better documentation as time goes on.
