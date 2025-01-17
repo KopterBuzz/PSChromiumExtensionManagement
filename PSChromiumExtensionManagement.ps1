@@ -233,3 +233,45 @@ function Remove-PSChromiumExtension {
     }
     Get-PSChromiumExtensionSettings -BrowserName $PSChromiumSupportedBrowsers.Keys
 }
+
+#retrieve extension settings outside the context of $PSChromiumSupportedBrowsers
+function Get-PSChromiumExtension {
+    Param(
+        [Parameter(Mandatory)]
+        [ValidateScript({$validateset = $PSChromiumSupportedBrowsers.Keys;$validateset+="All";$_ -in $validateset})]
+        [String[]]$BrowserName,
+        [Parameter(Mandatory)]
+        [String[]]$ExtensionID,
+        [Parameter()]
+        [bool]$AsJSON
+    )
+    if (!$AsJSON){$AsJSON = $true}
+    if ($BrowserName -eq "All") {$BrowserName = $PSChromiumSupportedBrowsers.Keys}
+    $Output = [System.Collections.Generic.List[PSObject]]@()
+    foreach ($Browser in $BrowserName) {
+        if (!$PSChromiumSupportedBrowsers[$Browser].Installed) {
+            Write-Error $("$Browser Is Not Installed.")
+            Continue
+        }
+        if ($ExtensionID -eq "All") {
+            $obj = [PSCustomObject]@{
+                Browser = $Browser
+                ExtensionSettings = $PSChromiumSupportedBrowsers[$Browser].ExtensionSettings
+            }
+            if ($AsJSON) {$obj.ExtensionSettings = $obj.ExtensionSettings | ConvertTo-Json -Depth 10}
+            [void]$Output.Add($obj)
+            remove-variable obj
+            Continue
+        }
+        if ($PSChromiumSupportedBrowsers[$Browser].ExtensionSettings.$ExtensionID) {
+            $obj = [PSCustomObject]@{
+                Browser = $Browser
+                ExtensionSettings = $PSChromiumSupportedBrowsers[$Browser].ExtensionSettings.$ExtensionID
+            }
+            if ($AsJSON) {$obj.ExtensionSettings = $obj.ExtensionSettings | ConvertTo-Json -Depth 10}
+            [void]$Output.Add($obj)
+            remove-variable obj
+        }
+    }
+    return $Output
+}
