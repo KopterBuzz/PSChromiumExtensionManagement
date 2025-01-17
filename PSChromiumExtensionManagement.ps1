@@ -97,6 +97,9 @@ Get-PSChromiumExtensionSettings -BrowserName $PSChromiumSupportedBrowsers.Keys
 #you can specify a single or multiple browsers at once
 function Set-PSChromiumExtension {
     Param(
+        [Parameter()]
+        [ValidateSet("extension","hosted_app","legacy_packaged_app","platform_app","theme","user_script")]
+        [String[]]$AllowedTypes,
         [Parameter(Mandatory)]
         [ValidateScript({$_ -in $PSChromiumSupportedBrowsers.Keys})]
         [String[]]$BrowserName,
@@ -130,6 +133,16 @@ function Set-PSChromiumExtension {
         [ValidateSet("force_pinned","default_unpinned")]
         [String]$ToolbarPin
     )
+
+    if ($ExtensionID -ne "*" -and $null -ne $AllowedTypes) {
+        Write-Error $("AllowedTypes can only be used with ExtensionID = *")
+        return
+    }
+
+    if ($ExtensionID -eq "*" -and $InstallationMode -in "force_installed","normal_installed") {
+        Write-Error $("InstallationMode $InstallationMode is not compatible with ExtensionID $ExtensionID")
+        return
+    }
 
     #convert input into hashtable
     $ExtensionSettingsHash = @{
