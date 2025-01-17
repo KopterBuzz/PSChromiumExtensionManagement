@@ -243,9 +243,9 @@ function Get-PSChromiumExtension {
         [Parameter(Mandatory)]
         [String[]]$ExtensionID,
         [Parameter()]
-        [bool]$AsJSON
+        [switch]$AsJSON
     )
-    if (!$AsJSON){$AsJSON = $true}
+    
     if ($BrowserName -eq "All") {$BrowserName = $PSChromiumSupportedBrowsers.Keys}
     $Output = [System.Collections.Generic.List[PSObject]]@()
     foreach ($Browser in $BrowserName) {
